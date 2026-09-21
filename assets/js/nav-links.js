@@ -16,7 +16,7 @@ var navLinkList = [
 
 // 自动检测：在访客自己的浏览器里逐个请求 https://域名/favicon.ico，
 // 能收到任何 HTTP 响应（包括 404）就算可用；DNS 被污染、连接被重置、超时则算不可用，标注为已停用。
-var NAV_CHECK_TIMEOUT = 6000;
+var NAV_CHECK_TIMEOUT = 5000;
 var NAV_NUMS = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 
 var navLinkStatus = []; // 每条的状态：'checking' | 'ok' | 'fail'
@@ -44,7 +44,7 @@ function checkurl1() {
   goNavUrl(pool[Math.floor(Math.random() * pool.length)]);
 }
 
-// 按钮始终全部显示、编号固定；检测不通过的在后面标注"（此地址已停用）"并置灰、不可点击。
+// 按钮始终全部显示、编号固定；检测中标注"（检测中…）"、检测不通过标注"（此地址已停用）"，两种都置灰、不可点击。
 function renderNavLinks() {
   var box = document.getElementById('nav-links');
   var tip = document.getElementById('nav-links-tip');
@@ -61,7 +61,11 @@ function renderNavLinks() {
   for (var k = 0; k < navLinkList.length; k++) {
     var a = document.createElement('a');
     var name = '最新导航网址' + (NAV_NUMS[k] || (k + 1));
-    if (navLinkStatus[k] === 'fail' && !allFailed) {
+    if (navLinkStatus[k] === 'checking') {
+      // 检测出结果之前不可点，避免用户一进来就点到被墙的地址
+      a.className = 'nav-off nav-wait';
+      a.innerHTML = '<span>' + name + '</span><span class="nav-off-note">（检测中…）</span>';
+    } else if (navLinkStatus[k] === 'fail' && !allFailed) {
       a.className = 'nav-off';
       a.innerHTML = '<span>' + name + '</span><span class="nav-off-note">（此地址已停用）</span>';
     } else {
