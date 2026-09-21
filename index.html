@@ -57,11 +57,10 @@
       </div>
       <div class="m-listD">
         <div class="m-listD-tit">首页推荐</div>
-        <div class="m-listD-item type3 bottom">
-          <a href="javascript:;" onclick="checkurl1()">最新导航网址一</a>
-          <a href="javascript:;" onclick="checkurl1()">最新导航网址二</a>
-          <a href="javascript:;" onclick="checkurl1()">最新导航网址三</a>
+        <div class="m-listD-item type3 bottom" id="nav-links">
+          <!-- 由 assets/js/nav-links.js 检测后动态生成，只显示可用的线路 -->
         </div>
+        <div id="nav-links-tip" style="display:none;margin:0 1rem .666667rem;color:#999;font-size:1rem;"></div>
         <div class="m-listD-item type1">
           <a target="_blank" href="https://cn.bing.com/">必应</a>
           <a target="_blank" href="https://outlook.live.com/owa/">Outlook邮箱</a>
