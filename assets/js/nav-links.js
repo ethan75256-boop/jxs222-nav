@@ -3,7 +3,7 @@
 // 换域名步骤：
 //   真实域名格式为 vip.XXXXXX.xyz，写入下面数组时改写成 'vipVIPXXXXXX@qqxyz'
 //   （只需替换中间的 6 位数字，前后的 vipVIP / @qqxyz 保持不变）。
-//   数组可以随意增减条数，页面会按实际可用的条数显示按钮。
+//   数组可以随意增减条数，按钮按数组顺序编号（一、二、三…）。
 // 还原规则（见 decodeUrl）：
 //   .replace(/VIP/g,'.')  把 VIP 还原成点
 //   .replace(/@qq/g,'.')  把 @qq 还原成点
@@ -15,7 +15,7 @@ var navLinkList = [
 ];
 
 // 自动检测：在访客自己的浏览器里逐个请求 https://域名/favicon.ico，
-// 能收到任何 HTTP 响应（包括 404）就算可用；DNS 被污染、连接被重置、超时则算不可用并隐藏。
+// 能收到任何 HTTP 响应（包括 404）就算可用；DNS 被污染、连接被重置、超时则算不可用，标注为已停用。
 var NAV_CHECK_TIMEOUT = 6000;
 var NAV_NUMS = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 
@@ -44,37 +44,38 @@ function checkurl1() {
   goNavUrl(pool[Math.floor(Math.random() * pool.length)]);
 }
 
+// 按钮始终全部显示、编号固定；检测不通过的在后面标注"（此地址已停用）"并置灰、不可点击。
 function renderNavLinks() {
   var box = document.getElementById('nav-links');
   var tip = document.getElementById('nav-links-tip');
   if (!box) return;
 
-  var show = [];
+  var failCount = 0;
   for (var i = 0; i < navLinkList.length; i++) {
-    if (navLinkStatus[i] === 'ok') show.push(i);
+    if (navLinkStatus[i] === 'fail') failCount++;
   }
-  // 全部检测失败时兜底显示全部，避免检测误判导致页面上一个入口都没有
-  var allFailed = navCheckDone && show.length === 0;
-  if (allFailed) {
-    for (var j = 0; j < navLinkList.length; j++) show.push(j);
-  }
+  // 全部检测失败时不标停用，全部保持可点，避免检测误判导致一个入口都用不了
+  var allFailed = navCheckDone && failCount === navLinkList.length;
 
   box.innerHTML = '';
-  for (var k = 0; k < show.length; k++) {
+  for (var k = 0; k < navLinkList.length; k++) {
     var a = document.createElement('a');
-    a.href = 'javascript:;';
-    a.innerHTML = '最新导航网址' + (NAV_NUMS[k] || (k + 1));
-    a.onclick = (function (idx) {
-      return function () { goNavUrl(idx); };
-    })(show[k]);
+    var name = '最新导航网址' + (NAV_NUMS[k] || (k + 1));
+    if (navLinkStatus[k] === 'fail' && !allFailed) {
+      a.className = 'nav-off';
+      a.innerHTML = '<span>' + name + '</span><span class="nav-off-note">（此地址已停用）</span>';
+    } else {
+      a.href = 'javascript:;';
+      a.innerHTML = name;
+      a.onclick = (function (idx) {
+        return function () { goNavUrl(idx); };
+      })(k);
+    }
     box.appendChild(a);
   }
 
   if (tip) {
-    if (!navCheckDone && show.length === 0) {
-      tip.innerHTML = '正在检测可用线路，请稍候…';
-      tip.style.display = 'block';
-    } else if (allFailed) {
+    if (allFailed) {
       tip.innerHTML = '当前网络下线路检测均未通过，可逐个尝试，或更换网络/浏览器后刷新页面。';
       tip.style.display = 'block';
     } else {
@@ -116,7 +117,7 @@ function initNavLinks() {
       navLinkStatus[idx] = ok ? 'ok' : 'fail';
       pending--;
       if (pending === 0) navCheckDone = true;
-      renderNavLinks(); // 每出一个结果就刷新，能用的线路先显示出来
+      renderNavLinks(); // 每出一个结果就刷新一次
     });
   }
 }
