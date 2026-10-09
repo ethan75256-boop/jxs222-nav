@@ -1,17 +1,10 @@
-// "首页推荐" 里 "最新导航网址" 按钮的跳转目标。
-//
-// 换域名步骤：
-//   真实域名格式为 vip.XXXXXX.xyz，写入下面数组时改写成 'vipVIPXXXXXX@qqxyz'
-//   （只需替换中间的 6 位数字，前后的 vipVIP / @qqxyz 保持不变）。
-//   数组可以随意增减条数，按钮按数组顺序编号（一、二、三…）。
-// 还原规则（见 decodeUrl）：
-//   .replace(/VIP/g,'.')  把 VIP 还原成点
-//   .replace(/@qq/g,'.')  把 @qq 还原成点
-// 例：'vipVIP713529@qqxyz' -> 'vip.713529.xyz'
+// 首页推荐的三个登录入口。
+// 域名中的点用 VIP 或 @qq 表示；decodeUrl 会还原。
+// 顺序：www.jasjd.com、vip.873987.xyz、www.khfsa.icu。
 var navLinkList = [
-  'vipVIP713529@qqxyz',
+  'wwwVIPjasjd@qqcom',
   'vipVIP873987@qqxyz',
-  'vipVIP879983@qqxyz',
+  'wwwVIPkhfsa@qqicu',
 ];
 
 // 自动检测：在访客自己的浏览器里逐个请求 https://域名/favicon.ico，
